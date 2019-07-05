@@ -80,25 +80,13 @@ RSpec.describe Types do
 
       context 'invalid fields' do
         let(:input) { [1, 2, 'string'] }
-        it { expect { subject }.to raise_error(Types::CastError) }
+        it do
+          expect { subject }.to raise_error(
+            Types::CastError,
+            'Could not cast element "string" : Integer expected, got "string"'
+          )
+        end
       end
-    end
-  end
-
-  describe '::alias' do
-    before do
-      Types.alias(:number, :float)
-      Types.alias(
-        :location,
-        { type: :object, fields: { lat: :number, lng: :number } }
-      )
-    end
-
-    it do
-      expect(Types.cast(12, :number)).to eq 12.0
-      expect(Types.cast({ lat: 12, lng: 13 }, :location)).to eq(
-        lat: 12.0, lng: 13.0
-      )
     end
   end
 
@@ -113,8 +101,14 @@ RSpec.describe Types do
 
     it do
       expect(Types.cast(6, :even_int)).to eq 6
-      expect { Types.cast(5, :even_int) }.to raise_error(Types::CastError)
-      expect { Types.cast('foo', :even_int) }.to raise_error(Types::CastError)
+      expect { Types.cast(5, :even_int) }.to raise_error(
+        Types::CastError,
+        'Even numbers only'
+      )
+      expect { Types.cast('foo', :even_int) }.to raise_error(
+        Types::CastError,
+        'Integer expected, got "foo"'
+      )
     end
   end
 end

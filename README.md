@@ -110,16 +110,6 @@ m.incomes.sum(&:full_amount)
 
 ## Custom type definition
 ```ruby
-# Types alias
-Types.register(:identity, { 
-    type: :object, 
-    fields: { 
-        first_name: :string, 
-        last_name: string, 
-        civility: { type: :enum, values: [:mr, :ms] } 
-    } 
-})
-
 # Custom casting logic
 Types.register(:percent) do |val, _opts|
     fail "Expected number" unless val.is_a? Numeric
@@ -133,7 +123,6 @@ end
 Types.register(:enum) do |val, opts|
     opts[:values].include?(val) ? val : fail "Value not in enum"
 end
-
 ```
 
 

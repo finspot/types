@@ -41,7 +41,10 @@ module Types
       val = val.to_sym
 
       values.include?(val) && val ||
-        fail(CastError, "Value #{val} not included in the enum #{values}")
+        fail(
+          CastError,
+          "Value #{val.inspect} not included in the enum #{values}"
+        )
     end,
     date: lambda do |val, _opts|
       case val
@@ -75,9 +78,26 @@ module Types
       end
     end,
     object: lambda do |val, opts|
-      opts[:fields].to_h { |name, type| [name, Types.cast(val[name], type)] }
+      opts[:fields].to_h do |name, type|
+        [
+          name,
+          begin
+            Types.cast(val[name], type)
+          rescue CastError => e
+            raise CastError, "Could not cast field #{name} : #{e.message}"
+          end
+        ]
+      end
     end,
-    array: ->(val, opts) { val.map { |elem| Types.cast(elem, opts[:of]) } },
+    array: lambda do |val, opts|
+      val.map do |elem|
+        begin
+          Types.cast(elem, opts[:of])
+        rescue CastError => e
+          raise CastError, "Could not cast element #{elem.inspect} : #{e.message}"
+        end
+      end
+    end,
     struct: ->(val, opts) { opts[:struct].new(val) }
   }
 
@@ -87,7 +107,6 @@ module Types
       definition = { type: definition } if definition.is_a? Symbol
       type = definition[:type]
 
-      # Handle nils
       if input.nil?
         if definition[:default]
           return definition[:default]
@@ -99,20 +118,13 @@ module Types
       end
 
       get(type).call(input, definition)
-    rescue CastError => e
-      fail CastError,
-           "Could not cast #{input.inspect} to type #{type} : #{e.message}"
-    end
-
-    def alias(type, definition = nil)
-      fail DefinitionError, "Type #{type} can not be aliased as it is already defined" if DEFINITIONS[type]
-      DEFINITIONS[type] = lambda do |val, _opts|
-        Types.cast(val, definition)
-      end
     end
 
     def register(type, &block)
-      fail DefinitionError, "Type #{type} can not be registered as it is already defined" if DEFINITIONS[type]
+      if DEFINITIONS[type]
+        fail DefinitionError,
+             "Type #{type} can not be registered as it is already defined"
+      end
       DEFINITIONS[type] = lambda(&block)
     end
 

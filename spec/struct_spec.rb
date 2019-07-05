@@ -71,26 +71,18 @@ RSpec.describe Types::Struct do
     end
   end
 
-  describe 'nested resolution of custom types' do
-    it { pending }
-  end
-
   describe 'nested struct arrays' do
-    let(:struct) do
-      described_class.define(
-        incomes: {
-          type: :array,
-          of: {
-            type: :object,
-            fields: {
-              amount: :float,
-              period: {
-                type: :enum, values: %i[monthly yearly], default: :monthly
-              }
-            }
-          }
+    let(:income_type) do
+      {
+        type: :object,
+        fields: {
+          amount: :float,
+          period: { type: :enum, values: %i[monthly yearly], default: :monthly }
         }
-      )
+      }
+    end
+    let(:struct) do
+      described_class.define(incomes: { type: :array, of: income_type })
     end
 
     let(:input) do
@@ -107,6 +99,23 @@ RSpec.describe Types::Struct do
              ]
            }
          )
+    end
+
+    context 'with invalid payload' do
+      let(:input) do
+        {
+          incomes: [
+            { amount: 1_200, period: :daily },
+            { amount: 20_000, period: :yearly }
+          ]
+        }
+      end
+      it 'raises an error' do
+        expect { subject }.to raise_error(
+          Types::CastError,
+          'Could not cast element {:amount=>1200, :period=>:daily} : Value :daily not included in the enum [:monthly, :yearly]'
+        )
+      end
     end
   end
 end
