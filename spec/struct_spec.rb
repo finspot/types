@@ -22,6 +22,18 @@ RSpec.describe Types::Struct do
     )
   end
 
+  describe 'value equality' do
+    it do
+      a = struct.new(first_name: 'John', last_name: 'Doe')
+      b = struct.new(first_name: 'John', last_name: 'Doe')
+      expect(a == b).to be true
+      expect(a.eql?(b)).to be true
+
+      hash = { a => 1, b => 1}
+      expect(hash.length).to eq 1
+    end
+  end
+
   describe 'without block' do
     let(:struct) do
       described_class.define(

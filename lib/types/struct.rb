@@ -49,6 +49,16 @@ module Types
       end
     end
 
+    def hash
+      to_h.hash
+    end
+    
+    def eql?(other)
+      other.is_a?(Types::Struct) && to_h == other.to_h
+    end
+  
+    alias_method :==, :eql?
+
     def to_h
       self.class.definition.keys.to_h do |key|
         val = send(key)
