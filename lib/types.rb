@@ -7,6 +7,9 @@ module Types
   class UnknownType < StandardError; end
 
   DEFINITIONS = {
+    any: lambda do |val, _opts|
+      val
+    end,
     int: lambda do |val, _opts|
       val.is_a?(Integer) && val ||
         fail(CastError, "Integer expected, got #{val.inspect}")
@@ -79,10 +82,11 @@ module Types
     end,
     object: lambda do |val, opts|
       opts[:fields].to_h do |name, type|
+        field = val[name.to_sym] || val[name.to_s]
         [
           name,
           begin
-            Types.cast(val[name], type)
+            Types.cast(field, type)
           rescue CastError => e
             raise CastError, "Could not cast field #{name} : #{e.message}"
           end
