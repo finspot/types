@@ -56,6 +56,23 @@ module Types
     def eql?(other)
       other.is_a?(Types::Struct) && to_h == other.to_h
     end
+
+    def with(attrs)
+      dup.tap do |copy|
+        attrs.each do |field, val|
+          type = self.class.definition[field.to_sym]
+          next unless type
+
+          if type[:type] == :struct
+            new_val = send(field).with(val)
+          else
+            new_val = Types.cast(val, type)
+          end
+
+          copy.instance_variable_set :"@#{field}", new_val
+        end
+      end
+    end
   
     alias_method :==, :eql?
 

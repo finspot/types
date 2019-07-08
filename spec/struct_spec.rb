@@ -29,9 +29,13 @@ RSpec.describe Types::Struct do
       expect(a == b).to be true
       expect(a.eql?(b)).to be true
 
-      hash = { a => 1, b => 1}
+      hash = { a => 1, b => 1 }
       expect(hash.length).to eq 1
     end
+  end
+
+  describe 'mutation' do
+    it { expect(subject.with(first_name: 'Paul').name).to eq 'Paul Doe' }
   end
 
   describe 'without block' do
@@ -52,7 +56,11 @@ RSpec.describe Types::Struct do
   describe 'nested structs' do
     let(:struct) do
       described_class.define(
-        foo: :string, bar: { type: :object, fields: { baz: :string } }
+        foo: :string,
+        bar: {
+          type: :object,
+          fields: { baz: :string, boo: { type: :string, default: 'boo' } }
+        }
       )
     end
 
@@ -62,6 +70,11 @@ RSpec.describe Types::Struct do
       expect(subject.foo).to eq 'foo'
       expect(subject.bar.baz).to eq 'baz'
       expect(struct.new(foo: 'foo', bar: { baz: 'boo' }).bar.baz).to eq 'boo'
+
+      mutated = subject.with(bar: { boo: 'booboo' })
+      expect(mutated.foo).to eq 'foo'
+      expect(mutated.bar.baz).to eq 'baz'
+      expect(mutated.bar.boo).to eq 'booboo'
     end
   end
 
