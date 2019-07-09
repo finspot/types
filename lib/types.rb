@@ -80,9 +80,13 @@ module Types
         )
       end
     end,
+    hash: lambda do |val, _opts|
+      fail CastError, "Hash expected" unless val.is_a?(Hash)
+      val
+    end,
     object: lambda do |val, opts|
       opts[:fields].to_h do |name, type|
-        field = val[name.to_sym] || val[name.to_s]
+        field = val.key?(name) ? val[name] : val[name.to_s]
         [
           name,
           begin
@@ -112,7 +116,7 @@ module Types
       type = definition[:type]
 
       if input.nil?
-        if definition[:default]
+        if definition.key?(:default)
           if definition[:default].respond_to?(:call)
             input = definition[:default].call
           else
@@ -121,7 +125,7 @@ module Types
         elsif definition[:nullable]
           return nil
         else
-          fail CastError, 'Unexpected nil'
+          fail CastError, "Unexpected nil for definition #{definition.inspect}"
         end
       end
 

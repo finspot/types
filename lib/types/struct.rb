@@ -17,7 +17,7 @@ module Types
 
           struct.define_method(:initialize) do |data|
             definition.each do |field, type|
-              val = data[field] || data[field.to_s]
+              val = data.key?(field) ? data[field] : data[field.to_s]
               instance_variable_set :"@#{field}", Types.cast(val, type)
             end
           end
@@ -59,6 +59,10 @@ module Types
 
     def [](field)
       self.class.definition.key?(field) ? send(field) : nil
+    end
+
+    def key?(field)
+      self.class.definition.key?(field)
     end
 
     def with(attrs)
