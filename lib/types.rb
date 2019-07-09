@@ -113,7 +113,11 @@ module Types
 
       if input.nil?
         if definition[:default]
-          return definition[:default]
+          if definition[:default].respond_to?(:call)
+            input = definition[:default].call
+          else
+            input = definition[:default]
+          end
         elsif definition[:nullable]
           return nil
         else
@@ -134,7 +138,7 @@ module Types
 
     def get(type)
       DEFINITIONS[type] ||
-        fail(UnknownType, "Could not find type definition for #{type}")
+        fail(UnknownType, "Could not find type definition for #{type.inspect}")
     end
 
     alias_method :[], :get

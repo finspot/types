@@ -69,6 +69,16 @@ RSpec.describe Types do
             }
           end
           it { expect(subject).to eq({ int: 2, string: nil }) }
+
+          context "with dynamic defaults" do
+          let(:type) do
+            {
+              type: :object,
+              fields: { int: :int, string: { type: :string, default: ->() { "a" * 12 } } }
+            }
+          end
+          it { expect(subject).to eq({ int: 2, string: "aaaaaaaaaaaa" }) }
+          end
         end
       end
     end

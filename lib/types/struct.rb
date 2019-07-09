@@ -52,9 +52,13 @@ module Types
     def hash
       to_h.hash
     end
-    
+
     def eql?(other)
       other.is_a?(Types::Struct) && to_h == other.to_h
+    end
+
+    def [](field)
+      self.class.definition.key?(field) ? send(field) : nil
     end
 
     def with(attrs)
@@ -63,7 +67,7 @@ module Types
           type = self.class.definition[field.to_sym]
           next unless type
 
-          if type[:type] == :struct
+          if type[:type] == :struct && !val.nil?
             new_val = send(field).with(val)
           else
             new_val = Types.cast(val, type)
@@ -73,13 +77,15 @@ module Types
         end
       end
     end
-  
+
     alias_method :==, :eql?
 
     def to_h
       self.class.definition.keys.to_h do |key|
         val = send(key)
-        if val.is_a?(Array)
+        if val.nil?
+          [key, nil]
+        elsif val.is_a?(Array)
           [key, val.map { |elem| elem.respond_to?(:to_h) ? elem.to_h : elem }]
         elsif val.respond_to?(:to_h)
           [key, val.to_h]
