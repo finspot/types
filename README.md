@@ -34,15 +34,17 @@ Types.cast(nil, type: :int, default: 0)
 ## Built-in types
 
 | Types        | Definition                  | Definition                            |
-|-------------|-----------------------------|---------------------------------------|
-| `:int`      | Integer                     |                                       |
-| `:float`    | Float                       |                                       |
-| `:string`   | String                      |                                       |
-| `:date`     | Date                        |                                       |
-| `:datetime` | DateTime                    |                                       |
-| `:enum`     | Symbol in a list            | `{type: :enum, values: [:foo, :bar]}` |
-| `:bool`     | Boolean                     |                                       |
-| `:array`    | Collection of a single type | `{type: :array, of: :int}`            |
+|--------------|-----------------------------|---------------------------------------|
+| `:any`       | Anything                    |                                       |
+| `:int`       | Integer                     |                                       |
+| `:float`     | Float                       |                                       |
+| `:string`    | String                      |                                       |
+| `:date`      | Date                        |                                       |
+| `:datetime`  | DateTime                    |                                       |
+| `:enum`      | Symbol in a list            | `{type: :enum, values: [:foo, :bar]}` |
+| `:bool`      | Boolean                     |                                       |
+| `:array`     | Collection of a single type | `{type: :array, of: :int}`            |
+| `:hash`      | Untyped ruby hash           |                                       |
 
 ## Objects
 
