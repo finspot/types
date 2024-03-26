@@ -137,7 +137,7 @@ module Types
         fail DefinitionError,
              "Type #{type} can not be registered as it is already defined"
       end
-      DEFINITIONS[type] = lambda(&block)
+      DEFINITIONS[type] = Proc.new(&block)
     end
 
     def get(type)
