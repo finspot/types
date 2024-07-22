@@ -133,10 +133,6 @@ module Types
     end
 
     def register(type, &block)
-      if DEFINITIONS[type]
-        fail DefinitionError,
-             "Type #{type} can not be registered as it is already defined"
-      end
       DEFINITIONS[type] = Proc.new(&block)
     end
 
